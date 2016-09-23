@@ -5,9 +5,9 @@ Deploys and retrieve artifacts from artifactory.
 This resource was tested with the [Artifactory] (https://www.jfrog.com/confluence/display/RTF/Running+with+Docker) docker images.
 
 ## Todo
-* At deployment, it uses artifactory build capabilities.
+* At deployment (out), we should use artifactory build capabilities. So concourse becomes first class CI citizen to artifactory
 * clean-up tests
-* use properties concept
+* use properties concept, needed for artifactory build integration
 * improve error handling. Not showing the errors. E.g. curl without user:password
 * check version sort semantic. E.g. 1.0.1 is coming before 1.0.1-rc1 (meaning, is older when in fact is a release). Mayb it is fine because we're not supposed to have releases in the same folder (with and without -rc9)
 
@@ -15,7 +15,7 @@ This resource was tested with the [Artifactory] (https://www.jfrog.com/confluenc
 
 * `endpoint`: *Required.* The artifactory REST API endpoint. eg. http://192.168.1.224:8081/artifactory.
 * `repository`: *Required.* The artifactory repository which includes any folder path. eg. /ext-snapshot-local/Products/admin.
-* `regex`: *Required.* Regular expression used to extract artifact version, must contain 'version' group. E.g. pivotal-(admin|api|customer)-(?<version>.*).tar.gz
+* `regex`: *Required.* Regular expression used to extract artifact version, must contain 'version' group. ```E.g. pivotal-(admin|api|customer)-(?<version>.*).tar.gz```
 * `username`: *Optional.* Username for HTTP(S) auth when accessing an authenticated repository.
 * `password`: *Optional.* Password for HTTP(S) auth when accessing an authenticated repository.
 
