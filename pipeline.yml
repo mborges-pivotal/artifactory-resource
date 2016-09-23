@@ -1,0 +1,54 @@
+## JOBS
+
+---
+jobs:
+- name: build
+  plan:
+  - get: artifactory
+    resource: artifactory-release
+  - task: promote
+    config: 
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: ubuntu}
+      inputs:
+      - name: artifactory
+      outputs:
+      - name: build-output
+      run:
+        path: mv
+        args: [./artifactory/pivotal-1.0.1-rc1.tar.gz, ./build-output]
+  - put: artifactory-snapshot
+    params: 
+      file: build-output/pivotal-*.tar.gz
+
+
+## RESOURCE TYPES
+
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: mborges/artifactory-resource
+
+## RESOURCES
+
+resources:
+- name: artifactory-release
+  type: artifactory
+  source:
+    endpoint: http://192.168.1.224:8081/artifactory
+    repository: "/libs-release-local"
+    regex: "pivotal-(?<version>.*).tar.gz"
+
+- name: artifactory-snapshot
+  type: artifactory
+  source:
+    endpoint: http://192.168.1.224:8081/artifactory
+    repository: "/libs-snapshot-local/Pivotal"
+    regex: "pivotal-(?<version>.*).tar.gz"
+    username: admin
+    password: password
+
+

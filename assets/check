@@ -1,0 +1,60 @@
+#!/bin/bash
+
+set -e
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+source $(dirname $0)/common.sh
+
+# for jq
+PATH=/usr/local/bin:$PATH
+
+payload=$(mktemp $TMPDIR/artifactory-resource-request.XXXXXX)
+
+cat > $payload <&0
+
+# MMB: debug log?
+cat $payload
+
+endpoint=$(jq -r '.source.endpoint // ""' < $payload)
+regex=$(jq -r '.source.regex // ""' < $payload)
+username=$(jq -r '.source.username // ""' < $payload)
+password=$(jq -r '.source.password // ""' < $payload)
+
+folder=$(jq -r '.source.repository // ""' < $payload)
+file=$(jq -r '.params.file // ""' < $payload)
+
+version=$(jq -r '.version.version // ""' < $payload)
+
+if [ -z "$endpoint" ]; then
+  echo "invalid payload (missing endpoint)"
+  exit 1
+fi
+
+if [ -z "$folder" ]; then
+  echo "invalid payload (missing folder)"
+  exit 1
+fi
+
+# Building CURL request
+args_url="$endpoint/api/storage$folder"
+
+args_security=
+
+[ -n "$username" ] && args_security="-u $username";
+[ -n "$password" ] && args_security="$args_security:$password";
+
+# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz 
+
+final_url=$(echo "$args_security" " $args_url")
+echo $final_url
+
+if [ -z "$version" ]; then
+  echo "empty version - return current version"
+  artifactory_current_version "$final_url" "$regex" >&3
+else   
+  check_version "$final_url" "$regex" "$version" >&3
+fi
+
+

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+set -e
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+source $(dirname $0)/common.sh
+
+source=$1
+
+if [ -z "$source" ]; then
+  echo "usage: $0 <path/to/source>"
+  exit 1
+fi
+
+cd $source
+
+# for jq
+PATH=/usr/local/bin:$PATH
+
+payload=$(mktemp $TMPDIR/artifactory-resource-request.XXXXXX)
+
+cat > $payload <&0
+
+# MMB: debug log?
+cat $payload
+
+endpoint=$(jq -r '.source.endpoint // ""' < $payload)
+regex=$(jq -r '.source.regex // ""' < $payload)
+username=$(jq -r '.source.username // ""' < $payload)
+password=$(jq -r '.source.password // ""' < $payload)
+
+folder=$(jq -r '.source.repository // ""' < $payload)
+file=$(jq -r '.params.file // ""' < $payload)
+
+if [ -z "$endpoint" ]; then
+  echo "invalid payload (missing endpoint)"
+  exit 1
+fi
+
+if [ -z "$folder" ]; then
+  echo "invalid payload (missing folder)"
+  exit 1
+fi
+
+if [ -z "$file" ]; then
+  echo "invalid payload (missing file)"
+  exit 1
+fi
+
+abs_file=$(ls $file)
+filename=$(basename "$abs_file")
+
+
+args_url="$endpoint"
+args_url="$args_url$folder/$filename"
+
+args_security=
+
+[ -n "$username" ] && args_security="-u $username";
+[ -n "$password" ] && args_security="$args_security:$password";
+
+# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz 
+# curl -u admin:password -T build-output/pivotal-1.0.1-rc1.tar.gz http://192.168.1.224:8081/artifactory/libs-snapshot-local/Pivotal/pivotal-1.0.1-rc1.tar.gz
+
+echo "########## $filename, $file"
+
+echo $args_security "-T $abs_file $args_url "
+curl $args_security "-T$abs_file" "$args_url"
+#curl $args_security "-T $abs_file $args_url"
+
+
+echo $file $regex
+version=$(applyRegex_version $regex $filename)
+
+jq -n "{
+  version: {version: $(echo $version | jq -R .)}
+}" >&3
