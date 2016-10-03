@@ -75,7 +75,8 @@ fi
 args_url="$endpoint$folder/$file"
 
 echo $args_security "-O" "$args_url"
-$(curl "$args_security" "-O" "$args_url")
+#$(curl "$args_security" "-O" "$args_url")
+curl $args_security "-O" "$args_url"
 
 echo $file_json | jq '.[].version | {version: {version: .}}' >&3
 #in_file_with_version $final_url $regex $version >&3

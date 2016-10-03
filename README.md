@@ -10,6 +10,7 @@ This resource was tested with the [Artifactory] (https://www.jfrog.com/confluenc
 * use properties concept, needed for artifactory build integration
 * improve error handling. Not showing the errors. E.g. curl without user:password
 * check version sort semantic. E.g. 1.0.1 is coming before 1.0.1-rc1 (meaning, is older when in fact is a release). Mayb it is fine because we're not supposed to have releases in the same folder (with and without -rc9)
+* Maybe allow the artifactory path to be configure as a parameters on put and get
 
 ## Source Configuration
 

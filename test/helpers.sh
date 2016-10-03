@@ -132,6 +132,30 @@ in_without_credentials_with_version() {
   }" | $resource_dir/in "$src" | tee /dev/stderr
 }
 
+# IN
+in_with_credentials_with_version() {
+
+  local endpoint=$1
+  local regex=$2
+  local folder=$3
+  local version=$4
+  local src=$5
+
+  local username=$6
+  local password=$7
+
+  jq -n "{
+    source: {
+      endpoint: $(echo $endpoint | jq -R .),
+      username: $(echo $username | jq -R .),
+      password: $(echo $password | jq -R .),
+      repository: $(echo $folder | jq -R .),
+      regex: $(echo $regex | jq -R .)
+    },
+    version: { version: $(echo $version| jq -R .)
+    }  
+  }" | $resource_dir/in "$src" | tee /dev/stderr
+}
 
 # OUT
 deploy_without_credentials() {
