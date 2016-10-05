@@ -31,8 +31,10 @@ regex=$(jq -r '.source.regex // ""' < $payload)
 username=$(jq -r '.source.username // ""' < $payload)
 password=$(jq -r '.source.password // ""' < $payload)
 
-folder=$(jq -r '.source.repository // ""' < $payload)
+repository=$(jq -r '.source.repository // ""' < $payload)
 file=$(jq -r '.params.file // ""' < $payload)
+folder=$(jq -r '.params.folder // ""' < $payload)
+paramRegex=$(jq -r '.params.regex // ""' < $payload)
 
 version=$(jq -r '.version.version // ""' < $payload)
 
@@ -41,8 +43,8 @@ if [ -z "$endpoint" ]; then
   exit 1
 fi
 
-if [ -z "$folder" ]; then
-  echo "invalid payload (missing folder)"
+if [ -z "$repository" ]; then
+  echo "invalid payload (missing repository)"
   exit 1
 fi
 
@@ -52,12 +54,17 @@ if [ -z "$version" ]; then
 fi
 
 # Building CURL request
-args_url="$endpoint/api/storage$folder"
+args_url="$endpoint/api/storage$repository$folder"
 
 args_security=
 
 [ -n "$username" ] && args_security="-u $username";
 [ -n "$password" ] && args_security="$args_security:$password";
+
+if [ -n "$paramRegex" ]; then
+  echo "overwriting source regex"
+  regex=$paramRegex
+fi 
 
 # curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz 
 
@@ -72,7 +79,7 @@ if [ -z "$file" ]; then
   exit 1
 fi
 
-args_url="$endpoint$folder/$file"
+args_url="$endpoint$repository/$file"
 
 echo $args_security "-O" "$args_url"
 #$(curl "$args_security" "-O" "$args_url")

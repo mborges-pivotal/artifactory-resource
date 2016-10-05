@@ -20,7 +20,11 @@ This resource was tested with the [Artifactory] (https://www.jfrog.com/confluenc
 * `username`: *Optional.* Username for HTTP(S) auth when accessing an authenticated repository.
 * `password`: *Optional.* Password for HTTP(S) auth when accessing an authenticated repository.
 
-### Example
+## Parameter Configuration
+
+* `file`: *Required for put* The file to upload to artifactory
+* `regex`: *Optional* overwrites the source regex. 
+* `folder`: *Optional.* appended to the repository in source - must start with forward slash /
 
 Resource configuration for an authenticated repository:
 

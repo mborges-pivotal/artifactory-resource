@@ -36,8 +36,8 @@ it_cant_get_version_from_artifactory() {
 
 it_can_get_version_from_artifactory_with_credentials() {
 
-  #local local_ip=$(find_docker_host_ip) 
-  local_ip="localhost"
+  local local_ip=$(find_docker_host_ip) 
+  #local_ip="localhost"
 
   local src=$(mktemp -d $TMPDIR/in-src.XXXXXX)
   local endpoint="http://${local_ip}:8081/artifactory"

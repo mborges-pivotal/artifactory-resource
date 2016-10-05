@@ -31,16 +31,18 @@ regex=$(jq -r '.source.regex // ""' < $payload)
 username=$(jq -r '.source.username // ""' < $payload)
 password=$(jq -r '.source.password // ""' < $payload)
 
-folder=$(jq -r '.source.repository // ""' < $payload)
+repository=$(jq -r '.source.repository // ""' < $payload)
+folder=$(jq -r '.params.folder // ""' < $payload)
 file=$(jq -r '.params.file // ""' < $payload)
+paramRegex=$(jq -r '.params.regex // ""' < $payload)
 
 if [ -z "$endpoint" ]; then
   echo "invalid payload (missing endpoint)"
   exit 1
 fi
 
-if [ -z "$folder" ]; then
-  echo "invalid payload (missing folder)"
+if [ -z "$repository" ]; then
+  echo "invalid payload (missing repository)"
   exit 1
 fi
 
@@ -54,7 +56,14 @@ filename=$(basename "$abs_file")
 
 
 args_url="$endpoint"
-args_url="$args_url$folder/$filename"
+args_url="$args_url$repository"
+
+if [ -n "$folder" ]; then 
+	echo "adding parameter folder"
+	args_url="$args_url/$folder"
+fi
+
+args_url="$args_url/$filename"
 
 args_security=
 

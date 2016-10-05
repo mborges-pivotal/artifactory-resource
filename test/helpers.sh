@@ -162,7 +162,7 @@ deploy_without_credentials() {
 
   local endpoint=$1
   local regex=$2
-  local folder=$3
+  local repository=$3
   local file=$(create_file "$6" "$4")
   local version=$5
   local src=$6
@@ -176,7 +176,7 @@ deploy_without_credentials() {
     },
     source: {
       endpoint: $(echo $endpoint | jq -R .),
-      repository: $(echo $folder | jq -R .),
+      repository: $(echo $repository | jq -R .),
       regex: $(echo $regex | jq -R .)
     }
   }" | $resource_dir/out "$src" | tee /dev/stderr
@@ -187,7 +187,7 @@ deploy_with_credentials() {
 
  local endpoint=$1
   local regex=$2
-  local folder=$3
+  local repository=$3
   local file=$(create_file "$6" "$4")
   local version=$5
   local src=$6
@@ -197,22 +197,15 @@ deploy_with_credentials() {
 
   local version_file=$(create_version_file "$version" "$src")
 
-  local artifactId=your-artifact
-  local packaging=tar.gz
-  local file=build-output/$artifactId-*.$packaging
-
-  # Mock the jar
-  mkdir $src/build-output
-  touch $src/build-output/$artifactId-$version.$packaging
-
   cat <<EOF | $resource_dir/out "$src" | tee /dev/stderr
   {
     "params": {
       "file": "$file",
-      "version_file": "$version_file",
+      "version_file": "$version_file"
     },
     "source": {
       "endpoint": "$endpoint",
+      "repository": "$repository",
       "username": "$username",
       "password": "$password"
     }
