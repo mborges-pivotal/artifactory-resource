@@ -1,3 +1,5 @@
+**THIS WORK WAS LIFTED AND SHIFTED TO PCF SERVICES ORGANIZATION AND IT IS NOW MAINTAINED AT [PCF SERVICES] (https://github.com/pivotalservices/artifactory-resource). ALL TODO ITEMS BECAME GITHUB ISSUES. I'LL CONTINUE THE WORK WITH THE PCF SERVICES TEAM.** Sincerely, Marcelo
+
 # Artifactory Resource
 
 Deploys and retrieve artifacts from artifactory. 
